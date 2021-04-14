@@ -1,24 +1,17 @@
-version: "3"
+version: "3.4"
 services:
 
   asterisk:
     image: alexshander/asterisk:13.37.0
     deploy:
-      replica: 1
-      resources:
-         limits:
-           cpus: '1.0'
-           memmory: 200M
-         resevations:
-           cpus: '0.25'
-           memory: '50M'
+      replicas: 1
       update_config:
         parallelism: 2
         delay: 10s
         order: stop-first
       restart_policy:
-        cobdition: on-failure
+        condition: on-failure
         delay: 30s
-        max_attemts: 3
-        windows: 120s
+        max_attempts: 3
+        window: 120s
 
