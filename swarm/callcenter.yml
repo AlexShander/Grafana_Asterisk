@@ -6,7 +6,7 @@ services:
     deploy:
       replicas: 1
       update_config:
-        parallelism: 2
+        parallelism: 1
         delay: 10s
         order: stop-first
       restart_policy:
@@ -15,3 +15,16 @@ services:
         max_attempts: 3
         window: 120s
 
+  postgres:
+    image: postgres:12.6-alpine
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-firs
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 1
+        window: 120s
