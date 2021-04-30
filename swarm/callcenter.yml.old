@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+
+  asterisk:
+    image: 6391725ysd/asterisk-18.3
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    networks:
+      sip:
+        ipv4_address: "10.0.159.3"
+
+        
+networks:
+  sip:
+    driver: null
+    driver_opts:
+      parent: eno1
+    ipam:
+      config:
+        - subnet: "10.0.159.0/29"
+          ip_range: "10.0.159.3/32"
+#          gateway: "10.0.159.1"
+
+  sip:
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+    ipam:
+      config:
+        - subnet: "10.0.159.0/29"
+          ip_range: "10.0.159.3/32"
+#          gateway: "10.0.159.1"
+
