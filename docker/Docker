@@ -1,0 +1,5 @@
+FROM postgres:12.6-alpine
+
+LABEL maintainer="Alexandr Shander <alexmasc05@gmail.com>"
+
+COPY ./../sql/asteriskcdrdb.sql /docker-entrypoint-initdb.d/asteriskcdrdb.sql 
