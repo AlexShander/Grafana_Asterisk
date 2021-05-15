@@ -10,7 +10,7 @@ read -p "Subnet (default "$hostsub"): " sub
 sub=${sub:=$hostsub}
 read -p 'Gateway (default '$hostgate'): ' gate
 gate=${gate:=$hostgate}
-read -p 'Vip address: ' ip
+read -p 'Asterisk address: ' ip
 last=`echo $ip | cut -d . -f 4`
 begin=`echo $ip | cut -d"." -f1-3`
 read -p 'Ethernet interface (default '$defint'): ' eth
@@ -19,7 +19,9 @@ read -p 'Docker Network Name: (default vip-'$last'): ' name
 name=${name:="vip-"$last}
 echo -e "Build the network on each node, \033[0;33mmake sure the physical parent interface (parent=) is set properly on each node if different)\033[0m:"
 echo -e "        \033[44mdocker network create --config-only --subnet $sub --gateway $gate --ip-range $ip/32 -o parent=$eth $name\033[0m"
+docker network create --config-only --subnet $sub --gateway $gate --ip-range $ip/32 -o parent=$eth $name
 echo
 echo "Then create the swarm network from any manager node:"
-echo -e "        \033[44mdocker network create -d macvlan --scope swarm --config-from $name swarm-$name\033[0m"
-#docker stack deploy -c callcenter.yml callcenter
+echo -e "        \033[44mdocker network create -d macvlan --scope swarm --config-from $name swarm-asterisk\033[0m"
+docker network create -d macvlan --scope swarm --config-from $name swarm-asterisk
+docker stack deploy -c callcenter.yml callcenter

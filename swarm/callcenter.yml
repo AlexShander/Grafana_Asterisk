@@ -2,7 +2,7 @@ version: "3.9"
 services:
 
   asterisk:
-    image: 6391725ysd/asterisk-18.3
+    image: alexshander/asterisk:18.3-alpine
     deploy:
       replicas: 1
       update_config:
@@ -14,11 +14,44 @@ services:
         delay: 30s
         max_attempts: 3
         window: 120s
+    volumes:
+      - asterisk-configure:/etc/asterisk
     networks:
-      swarm-sip:
+      - swarm-asterisk
+      - db-backend
+
+
+  asterisk-db:
+    image: postgres:13.3-alpine
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=asterisk
+    volumes:
+      - asterisk-db-data:/var/lib/postgresql/data
+      - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
+    networks:
+      - db-backend
 
         
 networks:
-  swarm-sip:
+  swarm-asterisk:
     external: true
     driver: macvlan
+  db-backend:
+    external: false
+    driver: overlay
+
+volumes:
+  asterisk-configure:
+  asterisk-db-data:
