@@ -14,12 +14,12 @@ services:
         delay: 30s
         max_attempts: 3
         window: 120s
+    entrypoint: ["/usr/sbin/asterisk", "-fvvv"]
     volumes:
       - asterisk-configure:/etc/asterisk
     networks:
       - swarm-asterisk
       - db-backend
-
 
   asterisk-db:
     image: postgres:13.3-alpine
@@ -43,7 +43,23 @@ services:
     networks:
       - db-backend
 
-        
+  asterisk-grafana:
+    image: grafana/grafana:7.5.6
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - db-backend
+
+
 networks:
   swarm-asterisk:
     external: true
