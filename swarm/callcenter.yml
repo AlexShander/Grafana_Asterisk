@@ -81,7 +81,6 @@ services:
     networks:
       - db-backend
 
-
 networks:
   swarm-asterisk:
     external: true
