@@ -16,6 +16,7 @@ services:
         window: 120s
     entrypoint: ["/usr/sbin/asterisk", "-fvvv"]
     volumes:
+      - asterisk-spool:/var/spool/asterisk
       - asterisk-configure:/etc/asterisk
     networks:
       - swarm-asterisk
@@ -59,6 +60,26 @@ services:
     networks:
       - db-backend
 
+  asterisk-nginx:
+    image: nginx:1.20.0-alpine
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    volumes:
+      - $PWD/../nginx/app.conf:/etc/nginx/conf.d/app.conf
+      - $PWD/../nginx/dnsname.conf:/etc/nginx/confvars/dnsname.conf
+      - asterisk-spool:/var/spool/asterisk
+    networks:
+      - db-backend
+
 
 networks:
   swarm-asterisk:
@@ -71,3 +92,4 @@ networks:
 volumes:
   asterisk-configure:
   asterisk-db-data:
+  asterisk-spool:

@@ -1,0 +1,3 @@
+pyami-asterisk
+asyncio
+redis
