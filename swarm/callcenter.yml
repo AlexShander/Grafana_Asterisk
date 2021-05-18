@@ -19,6 +19,8 @@ services:
       - asterisk-spool:/var/spool/asterisk
       - asterisk-configure:/etc/asterisk
       - asterisk-sounds:/var/lib/asterisk/sounds
+      - letsencrypt:/etc/letsencrypt
+      - well-known:/usr/share/nginx/html
     networks:
       - swarm-asterisk
       - db-backend
@@ -78,6 +80,11 @@ services:
       - $PWD/../nginx/app.conf:/etc/nginx/conf.d/app.conf
       - $PWD/../nginx/dnsname.conf:/etc/nginx/confvars/dnsname.conf
       - asterisk-spool:/var/spool/asterisk
+      - letsencrypt:/etc/letsencrypt
+      - well-known:/usr/share/nginx/html
+    ports:
+      - 80:80
+      - 443:443
     networks:
       - db-backend
 
@@ -94,3 +101,9 @@ volumes:
   asterisk-db-data:
   asterisk-spool:
   asterisk-sounds:
+  letsencrypt:
+    external: true
+  well-known:
+    external: true
+  share-nginx:
+    external: true

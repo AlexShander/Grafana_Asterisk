@@ -24,4 +24,21 @@ echo
 echo "Then create the swarm network from any manager node:"
 echo -e "        \033[44mdocker network create -d macvlan --scope swarm --config-from $name swarm-asterisk\033[0m"
 docker network create -d macvlan --scope swarm --config-from $name swarm-asterisk
+echo 
+echo "Create Volumes for nginx and cerbot, its containe letsencrypt certs. List of volumes:"
+echo -e "\033[44m letsencrypt,\033[0m"
+echo -e "\033[44m well-known,\033[0m"
+echo -e "\033[44m lib-letsencrypti.\033[0m"
+docker volume create letsencrypt 
+docker volume create well-known 
+docker volume create lib-letsencrypt
+echo 
+echo "Add to cron a new job with renew ssl at 00:19 & 12:19 each day"
+echo
+touch /var/spool/cron/certbot
+/usr/bin/crontab /var/spool/cron/certbot
+echo "19 0,12 * * * $PWD/../nginx/certbot_updateall.sh" > /var/spool/cron/certbot
+echo
+echo "Deploy services"
+echo
 docker stack deploy -c callcenter.yml callcenter
