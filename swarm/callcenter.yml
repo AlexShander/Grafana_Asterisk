@@ -44,6 +44,8 @@ services:
     volumes:
       - asterisk-db-data:/var/lib/postgresql/data
       - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
+    ports:
+      - 5432:5432
     networks:
       - db-backend
 
@@ -60,6 +62,14 @@ services:
         delay: 30s
         max_attempts: 3
         window: 120s
+    environment:
+      - GF_SERVER_ROOT_URL=https://mydent.openspeak.kz/grafana
+      - GF_SERVER_DOMAIN=mydent.openspeak.kz
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    volumes:
+      - grafana-data:/var/lib/grafana
     networks:
       - db-backend
 
@@ -78,10 +88,11 @@ services:
         window: 120s
     volumes:
       - $PWD/../nginx/app.conf:/etc/nginx/conf.d/app.conf
-      - $PWD/../nginx/dnsname.conf:/etc/nginx/confvars/dnsname.conf
       - asterisk-spool:/var/spool/asterisk
       - letsencrypt:/etc/letsencrypt
       - well-known:/usr/share/nginx/html
+      - $PWD/../nginx/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
+      - $PWD/../nginx/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
     ports:
       - 80:80
       - 443:443
@@ -101,6 +112,7 @@ volumes:
   asterisk-db-data:
   asterisk-spool:
   asterisk-sounds:
+  grafana-data:
   letsencrypt:
     external: true
   well-known:
