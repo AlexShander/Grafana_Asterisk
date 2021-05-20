@@ -17,6 +17,8 @@ RUN apk add --update --allow-untrusted  bash lame unixodbc \
     
 COPY --chown=asterisk:asterisk ./configs/ /etc/asterisk
 
+COPY --chown=asterisk:asterisk ./wav/* /var/lib/asterisk/sounds/
+
 COPY --chown=root:root ./odbc/ /etc/
 
 USER asterisk
