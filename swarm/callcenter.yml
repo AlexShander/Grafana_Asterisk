@@ -44,8 +44,6 @@ services:
     volumes:
       - asterisk-db-data:/var/lib/postgresql/data
       - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
-    ports:
-      - 5432:5432
     networks:
       - db-backend
 
