@@ -112,7 +112,7 @@ CREATE TABLE public.cdr (
     realdst text,
     start timestamp with time zone,
     answer timestamp with time zone,
-    "end" timestamp with time zone,
+    endcall timestamp with time zone,
     peerip text,
     did text,
     linkedid text,
