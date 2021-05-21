@@ -10,7 +10,7 @@ services:
         delay: 10s
         order: stop-first
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 30s
         max_attempts: 3
         window: 120s
@@ -34,13 +34,15 @@ services:
         delay: 10s
         order: stop-first
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 30s
         max_attempts: 3
         window: 120s
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=asterisk
+    ports:
+      - 5432:5432
     volumes:
       - asterisk-db-data:/var/lib/postgresql/data
       - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
@@ -56,7 +58,7 @@ services:
         delay: 10s
         order: stop-first
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 30s
         max_attempts: 3
         window: 120s
@@ -66,6 +68,7 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_PANELS_DISABLE_SANITIZE_HTML=true
     volumes:
       - grafana-data:/var/lib/grafana
     networks:
@@ -80,7 +83,7 @@ services:
         delay: 10s
         order: stop-first
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 30s
         max_attempts: 3
         window: 120s
