@@ -38,10 +38,11 @@ def get_finised_calls():
     date_time_to = parser.isoparse(request.args.get('dateTimeTo', None)).astimezone(tz.tzlocal())
     limit = request.args.get('limit', 500)
     offset = request.args.get('offSet', 0)
-    db_cdr = DBCdr(mysql_user=app.config.get("MYSQL_USER"),
-                   mysql_password=app.config.get("MYSQL_PASSWORD"),
-                   mysql_address=app.config.get("MYSQL_ADDRESS"),
-                   mysql_port=app.config.get("MYSQL_PORT"),
+    db_cdr = DBCdr(db_user=app.config.get("DB_USER"),
+                   db_password=app.config.get("DB_PASSWORD"),
+                   db_address=app.config.get("DB_ADDRESS"),
+                   db_port=app.config.get("DB_PORT"),
+                   db_name=app.config.get("DB_NAME"),
                    domain=app.config.get("DOMAIN"),
                    dir_record=app.config.get("DIR_RECORD")
                   )

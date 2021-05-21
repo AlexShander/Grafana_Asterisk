@@ -20,7 +20,7 @@ class QueueLogForExcel(Base):
 
 
 class CDRViewer(Base):
-    __tablename__ = 'cdr_viewer'
+    __tablename__ = 'cdr'
     id = Column(Integer, primary_key=True)
     calldate = Column(DateTime)
     src = Column(String)
@@ -31,3 +31,10 @@ class CDRViewer(Base):
     linkedid = Column(String)
     recordingfile = Column(String)
     did = Column(String)
+
+
+class Operators(Base):
+    __tablename__ = 'operators'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    num = Column(Integer)

@@ -1,6 +1,7 @@
 from dateutil import tz 
 from cdr.config import Config
 
+
 class Cdr(object):
     """ The Cdr class contains record of one cdr.
         For example: 
@@ -13,7 +14,7 @@ class Cdr(object):
         "RecordUrl": null.
     """
     def __init__(self, date_and_time, direction, phone_from, phone_to,
-                 wait_in_seconds, talk_in_seconds, record_url, line_description):
+                 wait_in_seconds, talk_in_seconds, record_url, line_description, operators_dict):
         self._date_and_time = dict(descr='DateAndTime', data=date_and_time)
         self._direction =  dict(descr='Direction', data=direction)
         if phone_from == '':
@@ -37,19 +38,17 @@ class Cdr(object):
         else:
             self._record_url = dict(descr='RecordUrl', data=record_url)
         if line_description == '':
-            self._line_description = dict(descr='RecordUrl', data=None)
+            self._line_description = dict(descr='LineDescription', data=None)
         else:
             self._line_description = dict(descr='LineDescription', 
-                data=Config.operators_list.get(line_description, line_description))
+                                          data=operators_dict.get(line_description, line_description))
         self.__dict__= self.create_dict()
 
     def create_dict(self):
         """
             It does dict for serialize JSON.
         """
-        cdr_dict = {self._date_and_time['descr']: self._date_and_time['data'].\
-                        replace(tzinfo=tz.tzlocal()).\
-                        isoformat(),
+        cdr_dict = {self._date_and_time['descr']: self._date_and_time['data'].replace(tzinfo=tz.tzlocal()).isoformat(),
                     self._direction['descr']: self._direction['data'],
                     self._phone_from['descr']: self._phone_from['data'],
                     self._phone_to['descr']: self._phone_to['data'],
@@ -58,5 +57,3 @@ class Cdr(object):
                     self._record_url['descr']: self._record_url['data'],
                     self._line_description['descr']: self._line_description['data']}
         return cdr_dict
-
-
