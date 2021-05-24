@@ -33,8 +33,8 @@ class DBCdr(object):
         self.domain = domain
         self.dir_record = str(dir_record)
         if db_type == 'mysql':
-            self.engine = create_engine(u"mysql+pymysql://{}:{}@{}:{}/{}".format(self.mysql_user,
-                                        self.mysql_password, self.mysql_address, self.db_port,
+            self.engine = create_engine(u"mysql+pymysql://{}:{}@{}:{}/{}".format(self.db_user,
+                                        self.db_password, self.db_address, self.db_port,
                                         self.db_name), echo=True)
         else:
             self.engine = create_engine(u"postgresql+pygresql://{}:{}@{}:{}/{}".format(self.db_user,

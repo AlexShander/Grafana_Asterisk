@@ -14,5 +14,5 @@ class Config(object):
     DOMAIN = os.environ.get('DOMAIN') or ''
     DIR_RECORD = os.environ.get('DIR_RECORD') or '0'
     IS_FIRST_SYNC = os.environ.get('IS_FIRST_SYNC') or '1'
-    TYPE_DB = os.environ.get('DB_TYPE') or 'mysql'
+    TYPE_DB = os.environ.get('TYPE_DB') or 'mysql'
 
