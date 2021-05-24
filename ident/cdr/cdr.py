@@ -32,7 +32,7 @@ class DBCdr(object):
         self.db_port = db_port
         self.domain = domain
         self.dir_record = str(dir_record)
-        if db_type is 'mysql':
+        if db_type == 'mysql':
             self.engine = create_engine(u"mysql+pymysql://{}:{}@{}:{}/{}".format(self.mysql_user,
                                         self.mysql_password, self.mysql_address, self.db_port,
                                         self.db_name), echo=True)
