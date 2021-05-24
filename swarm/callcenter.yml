@@ -100,6 +100,79 @@ services:
     networks:
       - db-backend
 
+  asterisk_redis:
+    image: redis:alpone
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ident_redis:/data
+    networks:
+      db-backend:
+
+  ami_collector:
+    image: alexshander/ami_current_call:1.0-aline
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - AMI_ADDRESS=asterisk
+      - AMI_USER=userevents
+      - AMI_PASSWORD=password
+      - REDIS_HOST=asterisk_redis
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      db-backend:
+
+  ident_flask_cdr:
+    image: alexshander/ident_asterisk:1.0-alpine
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - IDENT_INTEGRATION_KEY=${IDENT_INTEGRATION_KEY}
+      - DB_USER=asterisk
+      - DB_PASSWORD=password
+      - REDIS_HOST=asterisk_redis
+      - DB_ADDRESS=asterisk-db
+      - DOMAIN='https://$(hostname)/monitor/'
+      - DIR_RECORD='/var/spool/asterisk/monitor/'
+      - IS_FIRST_SYNC=0
+      - TYPE_DB='pgsql'
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      db-backend:
+
+
 networks:
   swarm-asterisk:
     external: true
@@ -114,6 +187,7 @@ volumes:
   asterisk-spool:
   asterisk-sounds:
   grafana-data:
+  ident_redis:
   letsencrypt:
     external: true
   well-known:
