@@ -63,7 +63,7 @@ class DBCdr(object):
 
     def get_cdrs(self, start_date: datetime, stop_date: datetime, limit=500, offset=0):
         conn = self.engine.connect()
-        regexp_op = 'REGEXP' if self.db_type = 'mysql' else '~*'
+        regexp_op = 'REGEXP' if self.db_type == 'mysql' else '~*'
         operators_dict = self.get_operators_dict(conn)
         stmnt_queuelog = select([QueueLogForExcel.time.label('calldate'),
                                 sql.expression.literal_column("\'in\'", String).label('direction'),

@@ -8,7 +8,7 @@ from sqlalchemy import DateTime
 
 
 class QueueLogForExcel(Base):
-    __tablename__ = 'queue_log_for_excel'
+    __tablename__ = 'cdr_queue_log'
     id = Column(Integer, primary_key=True)
     time = Column(DateTime)
     CLID_Client = Column(String)
