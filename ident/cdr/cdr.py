@@ -102,7 +102,8 @@ class DBCdr(object):
         list_cdr = []
         for db_cdr in results:
             list_cdr.append(Cdr(db_cdr[0], db_cdr[1], db_cdr[2], 
-                            db_cdr[3], int(db_cdr[4]), int(db_cdr[5]), 
+                            db_cdr[3], int( 0 if db_cdr[4] is None else db_cdr[4]), 
+                            int( 0 if db_cdr[5] is None else db_cdr[5]), 
                             self.change_file_url(record_file_name=db_cdr[6]),
                             db_cdr[7], operators_dict).__dict__
                            )

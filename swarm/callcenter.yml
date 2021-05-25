@@ -166,6 +166,11 @@ services:
       - DIR_RECORD=/var/spool/asterisk/monitor/
       - IS_FIRST_SYNC=0
       - TYPE_DB=pgsql
+      - LANG=ru_RU.UTF-8
+      - LC_ALL=ru_RU.UTF-8
+      - LC_LANG=ru_RU.UTF-8
+      - PYTHONIOENCODING=UTF-8
+      - JSON_AS_ASCII=False
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:

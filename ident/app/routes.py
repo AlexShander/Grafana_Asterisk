@@ -80,7 +80,8 @@ def get_get_ingoing_calls():
                             wait_in_seconds,
                             talk_in_seconds,
                             None,
-                            tmp_cdr.get('line_description')
+                            tmp_cdr.get('line_description'),
+                            dict()
                             ).__dict__
                        )
 

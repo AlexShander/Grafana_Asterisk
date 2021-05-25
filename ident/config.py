@@ -15,4 +15,5 @@ class Config(object):
     DIR_RECORD = os.environ.get('DIR_RECORD') or '0'
     IS_FIRST_SYNC = os.environ.get('IS_FIRST_SYNC') or '1'
     TYPE_DB = os.environ.get('TYPE_DB') or 'mysql'
+    JSON_AS_ASCII = os.environ.get('JSON_AS_ASCII') or 'False'
 
