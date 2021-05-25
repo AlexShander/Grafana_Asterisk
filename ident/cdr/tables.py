@@ -9,15 +9,15 @@ from sqlalchemy import DateTime
 
 class QueueLogForExcel(Base):
     __tablename__ = 'cdr_queue_log'
-    calldate = Column(DateTime)
+    calldate = Column(DateTime, primary_key=True)
     uniqueid = Column(String)
     queuename = Column(String)
     dst = Column(String)
     disposition = Column(String)
-    billsec = Column(String)
+    billsec = Column(Integer)
     did = Column(String)
     src = Column(String)
-    wait_time = Column(String)
+    wait_time = Column(Integer)
     filename = Column(String)
 
 
