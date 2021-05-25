@@ -44,7 +44,8 @@ def get_finised_calls():
                    db_port=app.config.get("DB_PORT"),
                    db_name=app.config.get("DB_NAME"),
                    domain=app.config.get("DOMAIN"),
-                   dir_record=app.config.get("DIR_RECORD")
+                   dir_record=app.config.get("DIR_RECORD"),
+                   db_type=app.config.get("DB_TYPE")
                   )
     response = jsonify(db_cdr.get_cdrs(date_time_from, date_time_to, limit, offset))
     response.headers["Content-Type"] = "application/json; charset=utf-8"

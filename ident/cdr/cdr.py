@@ -32,6 +32,7 @@ class DBCdr(object):
         self.db_port = db_port
         self.domain = domain
         self.dir_record = str(dir_record)
+        self.db_type = db_type;
         if db_type == 'mysql':
             self.engine = create_engine(u"mysql+pymysql://{}:{}@{}:{}/{}".format(self.db_user,
                                         self.db_password, self.db_address, self.db_port,
@@ -62,7 +63,8 @@ class DBCdr(object):
 
     def get_cdrs(self, start_date: datetime, stop_date: datetime, limit=500, offset=0):
         conn = self.engine.connect()
-        operators_dict = get_operators_dict(conn)
+        regexp_op = 'REGEXP' if self.db_type = 'mysql' else '~*'
+        operators_dict = self.get_operators_dict(conn)
         stmnt_queuelog = select([QueueLogForExcel.time.label('calldate'),
                                 sql.expression.literal_column("\'in\'", String).label('direction'),
                                 QueueLogForExcel.CLID_Client.label('src'),
@@ -91,7 +93,7 @@ class DBCdr(object):
                                        (
                                         CDRViewer.calldate >= start_date, 
                                         CDRViewer.calldate <= stop_date,
-                                        CDRViewer.dstchannel.op('REGEXP')(dst_channel_pattern)
+                                        CDRViewer.dstchannel.op(regexp_op)(dst_channel_pattern)
                                         )
                                       )
         select_union = union(stmnt_queuelog, stmnt_cdr).limit(limit).offset(int(offset))

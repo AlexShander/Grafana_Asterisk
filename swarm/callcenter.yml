@@ -159,12 +159,13 @@ services:
       - IDENT_INTEGRATION_KEY=${IDENT_INTEGRATION_KEY}
       - DB_USER=asterisk
       - DB_PASSWORD=password
+      - DB_PORT=5432
       - REDIS_HOST=asterisk_redis
       - DB_ADDRESS=asterisk-db
       - DOMAIN="https://$HOSTNAME/monitor/"
-      - DIR_RECORD='/var/spool/asterisk/monitor/'
+      - DIR_RECORD=/var/spool/asterisk/monitor/
       - IS_FIRST_SYNC=0
-      - TYPE_DB='pgsql'
+      - TYPE_DB=pgsql
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
