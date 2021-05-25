@@ -65,21 +65,21 @@ class DBCdr(object):
         conn = self.engine.connect()
         regexp_op = 'REGEXP' if self.db_type == 'mysql' else '~*'
         operators_dict = self.get_operators_dict(conn)
-        stmnt_queuelog = select([QueueLogForExcel.time.label('calldate'),
+        stmnt_queuelog = select([QueueLogForExcel.calldate.label('calldate'),
                                 sql.expression.literal_column("\'in\'", String).label('direction'),
-                                QueueLogForExcel.CLID_Client.label('src'),
-                                QueueLogForExcel.DID.label('dst'),
-                                QueueLogForExcel.Wait_Time.label('wait_time'),
+                                QueueLogForExcel.src.label('src'),
+                                QueueLogForExcel.did.label('dst'),
+                                QueueLogForExcel.wait_time.label('wait_time'),
                                 QueueLogForExcel.billsec.label('billsec'),
-                                CDRViewer.recordingfile,
-                                QueueLogForExcel.agent.label('LineDescription')]).select_from(
+                                CDRViewer.filename,
+                                QueueLogForExcel.dst.label('LineDescription')]).select_from(
                                     join(QueueLogForExcel, CDRViewer, 
                                          and_(
-                                              QueueLogForExcel.callid == CDRViewer.linkedid,
-                                              QueueLogForExcel.agent == CDRViewer.realdst
+                                              QueueLogForExcel.uniqueid == CDRViewer.linkedid,
+                                              QueueLogForExcel.src == CDRViewer.realdst
                                               ),
-                                         isouter=True)).where(and_(QueueLogForExcel.time >= start_date,
-                                                                   QueueLogForExcel.time <= stop_date))
+                                         isouter=True)).where(and_(QueueLogForExcel.calldate >= start_date,
+                                                                   QueueLogForExcel.calldate <= stop_date))
         dst_channel_pattern = "|".join(Config.dst_channels)
         stmnt_cdr = select([CDRViewer.calldate.label('calldate'),
                             sql.expression.literal_column("\'out\'", String).label('direction'),
@@ -87,7 +87,7 @@ class DBCdr(object):
                             CDRViewer.realdst.label('dst'),
                             CDRViewer.duration.op('-')(CDRViewer.billsec).label('wait_time'),
                             CDRViewer.billsec.label('billsec'),
-                            CDRViewer.recordingfile,
+                            CDRViewer.filename,
                             CDRViewer.src.label('LineDescription')]).where(
                                        and_
                                        (

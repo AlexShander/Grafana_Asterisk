@@ -9,14 +9,16 @@ from sqlalchemy import DateTime
 
 class QueueLogForExcel(Base):
     __tablename__ = 'cdr_queue_log'
-    id = Column(Integer, primary_key=True)
-    time = Column(DateTime)
-    CLID_Client = Column(String)
-    DID = Column(String)
-    billsec = Column(Integer)
-    Wait_Time = Column(Integer)
-    callid = Column(String)
-    agent = Column(String)
+    calldate = Column(DateTime)
+    uniqueid = Column(String)
+    queuename = Column(String)
+    dst = Column(String)
+    disposition = Column(String)
+    billsec = Column(String)
+    did = Column(String)
+    src = Column(String)
+    wait_time = Column(String)
+    filename = Column(String)
 
 
 class CDRViewer(Base):
@@ -29,7 +31,7 @@ class CDRViewer(Base):
     duration = Column(Integer)
     dstchannel = Column(String)
     linkedid = Column(String)
-    recordingfile = Column(String)
+    filename = Column(String)
     did = Column(String)
 
 
