@@ -2,10 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.3 (Ubuntu 12.3-1.pgdg18.04+1)
--- Dumped by pg_dump version 12.3 (Ubuntu 12.3-1.pgdg18.04+1)
-
--- Started on 2021-04-22 10:29:38 UTC
+-- Dumped from database version 13.3
+-- Dumped by pg_dump version 13.3 (Ubuntu 13.3-1.pgdg20.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,14 +16,14 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
--- DROP DATABASE asteriskcdrdb;
 --
--- TOC entry 2922 (class 1262 OID 24576)
--- Name: asteriskcdrdb; Type: DATABASE; Schema: -; Owner: -
+-- Name: asteriskcdrdb; Type: DATABASE; Schema: -; Owner: asterisk
 --
 
-CREATE DATABASE asteriskcdrdb WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C';
+CREATE DATABASE asteriskcdrdb WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'C';
 
+
+ALTER DATABASE asteriskcdrdb OWNER TO asterisk;
 
 \connect asteriskcdrdb
 
@@ -41,8 +39,59 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 220 (class 1255 OID 65544)
--- Name: q_replace(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: input_var(character varying, character varying, character varying); Type: FUNCTION; Schema: public; Owner: asterisk
+--
+
+CREATE FUNCTION public.input_var(aname character varying, anum character varying, atype character varying) RETURNS text[]
+    LANGUAGE plpgsql
+    AS $$
+DECLARE exist boolean;
+	begin
+		if aname = 'error'  then 
+		   return '{error}';
+		else
+		   exist := (select exists(select num from operators where num =  anum));
+		   if atype = 'add' then 
+		      if exist THEN
+                 return '{exist}';
+              else
+                 if anum LIKE '1__' then
+                    insert into operators (name,num) values(aname,anum);
+                    return '{added}';
+                 else 
+                    return '{notinrange}';
+                 end if;
+              end if;  
+           end if;   
+	   	   if atype = 'update' then
+		      if exist then
+		         update operators set name = aname where num = anum;
+		         return '{updated}';
+		      else 
+		         return '{notexist}';
+		      end if;
+		   end if;
+		   if atype = 'del' then
+		      if anum = '0'  then 
+		         return '{error}';
+		      else
+		         if exist then
+		            delete from operators where num = anum;
+		            return '{deleted}';
+		         else
+		            return '{notexist}';
+		         end if;
+		      end if; 
+		   end if;
+		end if;
+	END;
+$$;
+
+
+ALTER FUNCTION public.input_var(aname character varying, anum character varying, atype character varying) OWNER TO asterisk;
+
+--
+-- Name: q_replace(); Type: FUNCTION; Schema: public; Owner: asterisk
 --
 
 CREATE FUNCTION public.q_replace() RETURNS trigger
@@ -54,28 +103,28 @@ CREATE FUNCTION public.q_replace() RETURNS trigger
         END IF;
 
         IF (NEW.event = 'DID') THEN
-           Insert into cdr_queue_log (calldate, uniqueid, queuename, did,filename) VALUES (NEW.time,NEW.callid , NEW.queuename ,NEW.data1,NEW.data2);
+           Insert into cdr_queue_log (calldate, uniqueid, queuename, did,filename) VALUES (NEW.time,NEW.callid , NEW.queuename ,NEW.data1 ,NEW.data2);
 
           END IF;       
        
         IF (NEW.event = 'COMPLETECALLER')  OR (NEW.event = 'COMPLETEAGENT')  THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data2, billsec = NEW.data3  where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  wait_time = NEW.data2::int, billsec = NEW.data3::int   where uniqueid = NEW.callid;
         END IF;
 
         IF (NEW.event = 'ABANDON')  THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data3, disposition = 'NOANSWER',dst = 'nobody' where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  wait_time = NEW.data3::int, disposition = 'NOANSWER',dst = 'nobody' where uniqueid = NEW.callid;
         END IF;
 
         IF (NEW.event = 'CONNECT')  THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data2, disposition = 'ANSWER', dst = NEW.agent where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  disposition = 'ANSWER', dst = NEW.agent where uniqueid = NEW.callid;
         END IF;
 
         IF (NEW.event = 'TRANSFER') THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data4, billsec = NEW.data5  where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  wait_time = NEW.data4 , billsec = NEW.data5::int  where uniqueid = NEW.callid;
         END IF;
 
         IF (NEW.event = 'EXITWITHTIMEOUT')  THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data4, disposition = 'NOANSWER' where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  wait_time = NEW.data4 , disposition = 'NOANSWER' where uniqueid = NEW.callid;
         END if;	
 
 		
@@ -84,13 +133,14 @@ CREATE FUNCTION public.q_replace() RETURNS trigger
 $$;
 
 
+ALTER FUNCTION public.q_replace() OWNER TO asterisk;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- TOC entry 204 (class 1259 OID 49263)
--- Name: cdr; Type: TABLE; Schema: public; Owner: -
+-- Name: cdr; Type: TABLE; Schema: public; Owner: asterisk
 --
 
 CREATE TABLE public.cdr (
@@ -112,7 +162,7 @@ CREATE TABLE public.cdr (
     realdst text,
     start timestamp with time zone,
     answer timestamp with time zone,
-    endcall timestamp with time zone,
+    endcall timestamp without time zone,
     peerip text,
     did text,
     linkedid text,
@@ -122,9 +172,10 @@ CREATE TABLE public.cdr (
 );
 
 
+ALTER TABLE public.cdr OWNER TO asterisk;
+
 --
--- TOC entry 203 (class 1259 OID 49261)
--- Name: cdr_acctid_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: cdr_acctid_seq; Type: SEQUENCE; Schema: public; Owner: asterisk
 --
 
 CREATE SEQUENCE public.cdr_acctid_seq
@@ -135,18 +186,17 @@ CREATE SEQUENCE public.cdr_acctid_seq
     CACHE 1;
 
 
+ALTER TABLE public.cdr_acctid_seq OWNER TO asterisk;
+
 --
--- TOC entry 2925 (class 0 OID 0)
--- Dependencies: 203
--- Name: cdr_acctid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: cdr_acctid_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: asterisk
 --
 
 ALTER SEQUENCE public.cdr_acctid_seq OWNED BY public.cdr.id;
 
 
 --
--- TOC entry 205 (class 1259 OID 65565)
--- Name: cdr_queue_log; Type: TABLE; Schema: public; Owner: -
+-- Name: cdr_queue_log; Type: TABLE; Schema: public; Owner: asterisk
 --
 
 CREATE TABLE public.cdr_queue_log (
@@ -155,29 +205,31 @@ CREATE TABLE public.cdr_queue_log (
     queuename character varying(64),
     dst character varying(64),
     disposition character varying(32),
-    billsec character varying(64),
-    did character varying(64),
+    billsec integer,
+    did character varying,
     src character varying(64),
-    wait_time character varying(64),
+    wait_time integer,
     filename character varying
 );
 
 
+ALTER TABLE public.cdr_queue_log OWNER TO asterisk;
+
 --
--- TOC entry 206 (class 1259 OID 73729)
--- Name: operators; Type: TABLE; Schema: public; Owner: -
+-- Name: operators; Type: TABLE; Schema: public; Owner: asterisk
 --
 
 CREATE TABLE public.operators (
     id bigint NOT NULL,
     name character varying,
-    num integer
+    num character varying
 );
 
 
+ALTER TABLE public.operators OWNER TO asterisk;
+
 --
--- TOC entry 207 (class 1259 OID 73735)
--- Name: operators_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: operators_id_seq; Type: SEQUENCE; Schema: public; Owner: asterisk
 --
 
 CREATE SEQUENCE public.operators_id_seq
@@ -188,18 +240,17 @@ CREATE SEQUENCE public.operators_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.operators_id_seq OWNER TO asterisk;
+
 --
--- TOC entry 2937 (class 0 OID 0)
--- Dependencies: 207
--- Name: operators_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: operators_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: asterisk
 --
 
 ALTER SEQUENCE public.operators_id_seq OWNED BY public.operators.id;
 
 
 --
--- TOC entry 202 (class 1259 OID 32768)
--- Name: queue_log; Type: TABLE; Schema: public; Owner: -
+-- Name: queue_log; Type: TABLE; Schema: public; Owner: asterisk
 --
 
 CREATE TABLE public.queue_log (
@@ -217,25 +268,24 @@ CREATE TABLE public.queue_log (
 );
 
 
+ALTER TABLE public.queue_log OWNER TO asterisk;
+
 --
--- TOC entry 2786 (class 2604 OID 49266)
--- Name: cdr id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: cdr id; Type: DEFAULT; Schema: public; Owner: asterisk
 --
 
 ALTER TABLE ONLY public.cdr ALTER COLUMN id SET DEFAULT nextval('public.cdr_acctid_seq'::regclass);
 
 
 --
--- TOC entry 2787 (class 2604 OID 73737)
--- Name: operators id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: operators id; Type: DEFAULT; Schema: public; Owner: asterisk
 --
 
 ALTER TABLE ONLY public.operators ALTER COLUMN id SET DEFAULT nextval('public.operators_id_seq'::regclass);
 
 
 --
--- TOC entry 2789 (class 2606 OID 49271)
--- Name: cdr cdr_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: cdr cdr_pkey; Type: CONSTRAINT; Schema: public; Owner: asterisk
 --
 
 ALTER TABLE ONLY public.cdr
@@ -243,196 +293,126 @@ ALTER TABLE ONLY public.cdr
 
 
 --
--- TOC entry 2790 (class 2620 OID 65564)
--- Name: queue_log q_before; Type: TRIGGER; Schema: public; Owner: -
+-- Name: queue_log q_before; Type: TRIGGER; Schema: public; Owner: asterisk
 --
 
 CREATE TRIGGER q_before BEFORE INSERT ON public.queue_log FOR EACH ROW EXECUTE FUNCTION public.q_replace();
 
 
 --
--- TOC entry 2923 (class 0 OID 0)
--- Dependencies: 2922
--- Name: DATABASE asteriskcdrdb; Type: ACL; Schema: -; Owner: -
---
-
-GRANT ALL ON DATABASE asteriskcdrdb TO asterisk;
-
-
---
--- TOC entry 2924 (class 0 OID 0)
--- Dependencies: 204
--- Name: TABLE cdr; Type: ACL; Schema: public; Owner: -
---
-
-GRANT ALL ON TABLE public.cdr TO asterisk;
-
-
---
--- TOC entry 2926 (class 0 OID 0)
--- Dependencies: 205
--- Name: TABLE cdr_queue_log; Type: ACL; Schema: public; Owner: -
---
-
-GRANT ALL ON TABLE public.cdr_queue_log TO asterisk;
-
-
---
--- TOC entry 2927 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.calldate; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.calldate; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(calldate) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2928 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.uniqueid; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.uniqueid; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(uniqueid) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2929 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.queuename; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.queuename; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(queuename) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2930 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.dst; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.dst; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(dst) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2931 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.disposition; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.disposition; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(disposition) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2932 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.billsec; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.billsec; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(billsec) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2933 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.did; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.did; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(did) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2934 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.src; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.src; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(src) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2935 (class 0 OID 0)
--- Dependencies: 205
--- Name: COLUMN cdr_queue_log.wait_time; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN cdr_queue_log.wait_time; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(wait_time) ON TABLE public.cdr_queue_log TO asterisk;
 
 
 --
--- TOC entry 2936 (class 0 OID 0)
--- Dependencies: 206
--- Name: TABLE operators; Type: ACL; Schema: public; Owner: -
+-- Name: TABLE operators; Type: ACL; Schema: public; Owner: asterisk
 --
 
-GRANT ALL ON TABLE public.operators TO asterisk;
+GRANT ALL ON TABLE public.operators TO test;
 
 
 --
--- TOC entry 2938 (class 0 OID 0)
--- Dependencies: 202
--- Name: TABLE queue_log; Type: ACL; Schema: public; Owner: -
---
-
-GRANT ALL ON TABLE public.queue_log TO asterisk;
-
-
---
--- TOC entry 2939 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log."time"; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log."time"; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL("time") ON TABLE public.queue_log TO asterisk;
 
 
 --
--- TOC entry 2940 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log.callid; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log.callid; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(callid) ON TABLE public.queue_log TO asterisk;
 
 
 --
--- TOC entry 2941 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log.queuename; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log.queuename; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(queuename) ON TABLE public.queue_log TO asterisk;
 
 
 --
--- TOC entry 2942 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log.agent; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log.agent; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(agent) ON TABLE public.queue_log TO asterisk;
 
 
 --
--- TOC entry 2943 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log.event; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log.event; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(event) ON TABLE public.queue_log TO asterisk;
 
 
 --
--- TOC entry 2944 (class 0 OID 0)
--- Dependencies: 202
--- Name: COLUMN queue_log.data1; Type: ACL; Schema: public; Owner: -
+-- Name: COLUMN queue_log.data1; Type: ACL; Schema: public; Owner: asterisk
 --
 
 GRANT ALL(data1) ON TABLE public.queue_log TO asterisk;
 
 
--- Completed on 2021-04-22 10:29:38 UTC
-
 --
 -- PostgreSQL database dump complete
 --
+
 
