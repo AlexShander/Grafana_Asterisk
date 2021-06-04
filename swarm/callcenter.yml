@@ -171,6 +171,7 @@ services:
       - LC_LANG=ru_RU.UTF-8
       - PYTHONIOENCODING=UTF-8
       - JSON_AS_ASCII=False
+      - DST_CHANNEL=7071234422
     volumes:
       - /etc/localtime:/etc/localtime:ro
     networks:
