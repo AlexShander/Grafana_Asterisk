@@ -108,7 +108,7 @@ CREATE FUNCTION public.q_replace() RETURNS trigger
           END IF;       
        
         IF (NEW.event = 'COMPLETECALLER')  OR (NEW.event = 'COMPLETEAGENT')  THEN
-           UPDATE cdr_queue_log set  wait_time = NEW.data2::int, billsec = NEW.data3::int   where uniqueid = NEW.callid;
+           UPDATE cdr_queue_log set  wait_time = NEW.data1::int, billsec = NEW.data2::int   where uniqueid = NEW.callid;
         END IF;
 
         IF (NEW.event = 'ABANDON')  THEN
@@ -414,5 +414,4 @@ GRANT ALL(data1) ON TABLE public.queue_log TO asterisk;
 --
 -- PostgreSQL database dump complete
 --
-
 
