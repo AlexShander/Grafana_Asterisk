@@ -71,14 +71,8 @@ class DBCdr(object):
                                 QueueLogForExcel.did.label('dst'),
                                 QueueLogForExcel.wait_time.label('wait_time'),
                                 QueueLogForExcel.billsec.label('billsec'),
-                                CDRViewer.filename,
-                                QueueLogForExcel.dst.label('LineDescription')]).select_from(
-                                    join(QueueLogForExcel, CDRViewer, 
-                                         and_(
-                                              QueueLogForExcel.uniqueid == CDRViewer.linkedid,
-                                              QueueLogForExcel.src == CDRViewer.realdst
-                                              ),
-                                         isouter=True)).where(and_(QueueLogForExcel.calldate >= start_date,
+                                QueueLogForExcel.filename,
+                                QueueLogForExcel.dst.label('LineDescription')]).where(and_(QueueLogForExcel.calldate >= start_date,
                                                                    QueueLogForExcel.calldate <= stop_date))
         dst_channel_pattern = "|".join(Config.dst_channels)
         stmnt_cdr = select([CDRViewer.calldate.label('calldate'),
