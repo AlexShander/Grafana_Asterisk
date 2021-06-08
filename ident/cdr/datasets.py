@@ -50,7 +50,7 @@ class Cdr(object):
         """
             It does dict for serialize JSON.
         """
-        cdr_dict = {self._date_and_time['descr']: self._date_and_time['data'].replace(tzinfo=tz.tzlocal()).isoformat(),
+        cdr_dict = {self._date_and_time['descr']: self._date_and_time['data'].astimezone(tz.tzlocal()).isoformat(),
                     self._direction['descr']: self._direction['data'],
                     self._phone_from['descr']: self._phone_from['data'],
                     self._phone_to['descr']: self._phone_to['data'],
