@@ -42,7 +42,7 @@ class Cdr(object):
         else:
             self._line_description = dict(descr='LineDescription', 
                                           data=operators_dict.get(line_description, line_description))
-        if self.__talk_in_seconds is None or self._talk_in_seconds = 0:
+        if self._talk_in_seconds['data'] is None:
             self._record_url = dict(descr='RecordUrl', data=None)
         self.__dict__= self.create_dict()
 

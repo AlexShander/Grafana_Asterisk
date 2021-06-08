@@ -28,8 +28,8 @@ def get_one_cheese():
 @app.route("/GetFinishedCalls", methods=['GET'])
 def get_finised_calls():
     authorized_key = request.headers.get('IDENT-Integration-Key')
-#    if authorized_key != app.config['IDENT_INTEGRATION_KEY']:
-#        abort(404, description="Resource not found")
+    if authorized_key != app.config['IDENT_INTEGRATION_KEY']:
+        abort(404, description="Resource not found")
     date_time_from  = parser.isoparse(request.args.get('dateTimeFrom', None)).astimezone(tz.tzlocal())
     ninety_days_ago = (datetime.now() - timedelta(days=90)).astimezone(tz.tzlocal())
     is_first_sync = app.config.get("IS_FIRST_SYNC")
@@ -38,6 +38,8 @@ def get_finised_calls():
     date_time_to = parser.isoparse(request.args.get('dateTimeTo', None)).astimezone(tz.tzlocal())
     limit = request.args.get('limit', 500)
     offset = request.args.get('offSet', 0)
+    if offset == 0:
+        offset = request.args.get('offset', 0)
     db_cdr = DBCdr(db_user=app.config.get("DB_USER"),
                    db_password=app.config.get("DB_PASSWORD"),
                    db_address=app.config.get("DB_ADDRESS"),
@@ -59,6 +61,8 @@ def get_get_ingoing_calls():
 #        abort(404, description="Resource not found")
     limit = request.args.get('limit', 500)
     offset = request.args.get('offSet', 0)
+    if offset == 0:
+        offset = request.args.get('offset', 0)
     get_channels = GetChannelsFromRedis(host=app.config.get("REDIS_HOST"),
                                         port=app.config.get("REDIS_PORT"),
                                         db=app.config.get("REDIS_DB")
