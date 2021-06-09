@@ -1,0 +1,74 @@
+version: "3.9"
+services:
+
+  asterisk-db:
+    image: postgres:13.3-alpine
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=asterisk
+    ports:
+      - 5432:5432
+    volumes:
+      - asterisk-db-data:/var/lib/postgresql/data
+      - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
+    networks:
+      - db-backend
+
+  asterisk-grafana:
+    image: grafana/grafana:7.5.6
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - GF_SERVER_ROOT_URL=http://192.168.14.14/grafana
+      - GF_SERVER_DOMAIN=mydent.openspeak.kz
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_PANELS_DISABLE_SANITIZE_HTML=true
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=asterisk-db
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=asterisk
+      - GF_DATABASE_PASSWORD=password
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - db-backend
+    ports:
+      - 3000:3000
+
+
+networks:
+  db-backend:
+    external: false
+    driver: overlay
+
+volumes:
+  asterisk-db-data:
+  grafana-data:
+  letsencrypt:
+    external: true
+  well-known:
+    external: true
+  share-nginx:
+    external: true
