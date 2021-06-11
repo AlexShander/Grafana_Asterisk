@@ -271,6 +271,12 @@ ALTER TABLE public.operators_id_seq OWNER TO asterisk;
 ALTER SEQUENCE public.operators_id_seq OWNED BY public.operators.id;
 
 
+INSERT INTO public.operators (name,num) VALUES
+('Оператор1','101'),
+('Оператор2','102'),
+('Оператор3','103'),
+('Очередь','nobody');
+
 --
 -- Name: queue_log; Type: TABLE; Schema: public; Owner: asterisk
 --

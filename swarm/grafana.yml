@@ -39,8 +39,6 @@ services:
         max_attempts: 3
         window: 120s
     environment:
-      - GF_SERVER_ROOT_URL=http://192.168.14.14/grafana
-      - GF_SERVER_DOMAIN=mydent.openspeak.kz
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=password
