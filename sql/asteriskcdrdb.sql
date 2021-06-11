@@ -25,28 +25,6 @@ CREATE DATABASE asteriskcdrdb WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE
 
 ALTER DATABASE asteriskcdrdb OWNER TO asterisk;
 
---
--- Name: grafana; Type: DATABASE; Schema: -; Owner: asterisk
---
-
-CREATE DATABASE grafana WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE = 'C';
-
-
-ALTER DATABASE grafana OWNER TO asterisk;
-
-\connect grafana
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
-SET check_function_bodies = false;
-SET xmloption = content;
-SET client_min_messages = warning;
-SET row_security = off;
-
-
 \connect asteriskcdrdb
 
 SET statement_timeout = 0;
@@ -190,7 +168,8 @@ CREATE TABLE public.cdr (
     linkedid text,
     sequence integer,
     filename text,
-    useragent text
+    useragent text,
+    realsrc character varying(64)
 );
 
 
@@ -276,6 +255,7 @@ INSERT INTO public.operators (name,num) VALUES
 ('Оператор2','102'),
 ('Оператор3','103'),
 ('Очередь','nobody');
+
 
 --
 -- Name: queue_log; Type: TABLE; Schema: public; Owner: asterisk
@@ -388,6 +368,13 @@ GRANT ALL(src) ON TABLE public.cdr_queue_log TO asterisk;
 --
 
 GRANT ALL(wait_time) ON TABLE public.cdr_queue_log TO asterisk;
+
+
+--
+-- Name: TABLE operators; Type: ACL; Schema: public; Owner: asterisk
+--
+
+GRANT ALL ON TABLE public.operators TO test;
 
 
 --
