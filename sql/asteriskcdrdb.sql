@@ -249,14 +249,6 @@ ALTER TABLE public.operators_id_seq OWNER TO asterisk;
 
 ALTER SEQUENCE public.operators_id_seq OWNED BY public.operators.id;
 
-
-INSERT INTO public.operators (name,num) VALUES
-('Оператор1','101'),
-('Оператор2','102'),
-('Оператор3','103'),
-('Очередь','nobody');
-
-
 --
 -- Name: queue_log; Type: TABLE; Schema: public; Owner: asterisk
 --
@@ -374,7 +366,7 @@ GRANT ALL(wait_time) ON TABLE public.cdr_queue_log TO asterisk;
 -- Name: TABLE operators; Type: ACL; Schema: public; Owner: asterisk
 --
 
-GRANT ALL ON TABLE public.operators TO test;
+GRANT ALL ON TABLE public.operators TO asterisk;
 
 
 --
@@ -417,6 +409,14 @@ GRANT ALL(event) ON TABLE public.queue_log TO asterisk;
 --
 
 GRANT ALL(data1) ON TABLE public.queue_log TO asterisk;
+
+
+
+INSERT INTO public.operators (name,num) VALUES
+('Оператор1','101'),
+('Оператор2','102'),
+('Оператор3','103'),
+('Очередь','nobody');
 
 
 --

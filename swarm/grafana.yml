@@ -22,6 +22,7 @@ services:
     volumes:
       - asterisk-db-data:/var/lib/postgresql/data
       - $PWD/../sql/asteriskcdrdb.sql:/docker-entrypoint-initdb.d/asteriskcdrdb.sql
+      - $PWD/../sql/grafana.sql:/docker-entrypoint-initdb.d/grafana.sql
     networks:
       - db-backend
 
