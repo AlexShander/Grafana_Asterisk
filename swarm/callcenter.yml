@@ -19,6 +19,7 @@ services:
       - asterisk-spool:/var/spool/asterisk
       - asterisk-configure:/etc/asterisk
       - asterisk-sounds:/var/lib/asterisk/sounds
+      - asterisk-moh:/var/lib/asterisk/moh
       - letsencrypt:/etc/letsencrypt
       - well-known:/usr/share/nginx/html
     networks:
@@ -190,6 +191,7 @@ volumes:
   asterisk-configure:
   asterisk-db-data:
   asterisk-spool:
+  asterisk-moh:
   asterisk-sounds:
   grafana-data:
   ident_redis:
