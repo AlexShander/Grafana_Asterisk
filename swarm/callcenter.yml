@@ -96,7 +96,6 @@ services:
       - $PWD/../nginx/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
       - $PWD/../nginx/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
       - $PWD/../nginx/reload_ssl.sh:/docker-entrypoint.d/reload_ssl.sh
-      - $PWD/../nginx/reload_ssl.sh:/docker-entrypoint.d/reload_ssl.sh
     ports:
       - 80:80
       - 443:443
