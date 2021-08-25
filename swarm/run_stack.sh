@@ -38,6 +38,9 @@ echo
 touch /var/spool/cron/certbot
 /usr/bin/crontab /var/spool/cron/certbot
 echo "19 0,12 * * * $PWD/../nginx/certbot_updateall.sh" > /var/spool/cron/certbot
+echo -n
+read -p "Input \033[IDENT_INTEGRATION_KEY:\033[0m" IDENT_INTEGRATION_KEY
+export IDENT_INTEGRATION_KEY=$IDENT_INTEGRATION_KEY
 echo
 echo "Deploy services"
 echo
