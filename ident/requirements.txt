@@ -3,3 +3,4 @@ pymysql
 redis
 SQLAlchemy
 pygresql
+requests
